@@ -1,6 +1,6 @@
 {
   "name": "@sc-cli-dev/utils",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "> TODO: description",
   "author": "sunchang <sunchang612@gmail.com>",
   "homepage": "",
@@ -18,5 +18,6 @@
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
-  }
+  },
+  "gitHead": "0513c6844445fd8c90bb861f7f0a1cd52410f502"
 }
