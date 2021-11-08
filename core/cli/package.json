@@ -24,7 +24,9 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@sc-cli-dev/utils": "^1.0.3"
+    "@sc-cli-dev/utils": "file:../../utils/utils",
+    "import-local": "^3.0.3",
+    "npmlog": "^5.0.1"
   },
   "gitHead": "0513c6844445fd8c90bb861f7f0a1cd52410f502"
 }
