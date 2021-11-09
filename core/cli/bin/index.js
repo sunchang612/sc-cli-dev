@@ -1,6 +1,5 @@
 #! /usr/bin/env node
 
-console.log('hello 1');
 const importLocal  = require('import-local');
 
 if (importLocal(__filename)) {

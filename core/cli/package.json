@@ -24,9 +24,21 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
+    "@sc-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
+    "@sc-cli-dev/log": "file:../../utils/log",
     "@sc-cli-dev/utils": "file:../../utils/utils",
+    "@sc-cli-dev/init": "file:../../commands/init",
+    "colors": "^1.4.0",
+    "commander": "^8.3.0",
+    "dotenv": "^10.0.0",
     "import-local": "^3.0.3",
-    "npmlog": "^5.0.1"
+    "minimist": "^1.2.5",
+    "npmlog": "^5.0.1",
+    "path-exists": "^4.0.0",
+    "root-check": "^1.0.0",
+    "semver": "^7.3.5",
+    "url-join": "^4.0.1",
+    "user-home": "^3.0.0"
   },
   "gitHead": "0513c6844445fd8c90bb861f7f0a1cd52410f502"
 }
