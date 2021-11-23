@@ -28,8 +28,7 @@ function getDefaultRegistry (isOriginal = false) {
 async function getNpmVersions (npmName, registry) {
   const data = await getNpmInfo(npmName, registry)
   if (data) {
-    console.log('版本号 --->', data)
-    return data.version
+    return Object.keys(data.versions)
   }
   return null
 }
@@ -37,7 +36,17 @@ async function getNpmVersions (npmName, registry) {
 // 获取所有满足条件的版本号
 
 
+// 获取最新的 npm 版本号
+async function getNpmLatestVersion (npmName, registry) {
+  let version = await getNpmVersions(npmName, registry)
+  if (version) {
+    return version.sort((a, b) => semver.gt(b, a))[0]
+  }
+  return null
+}
+
 module.exports = {
   getNpmVersions,
-  getDefaultRegistry
+  getDefaultRegistry,
+  getNpmLatestVersion
 }
