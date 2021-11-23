@@ -13,8 +13,8 @@ const commander = require('commander')
 const pkg = require('../package.json')
 const log = require('@sc-cli-dev/log')
 const init = require('@sc-cli-dev/init')
+const exec = require('@sc-cli-dev/exec')
 const { LOWEST_VERSION } = require('./const')
-
 const { program } = commander
 
 function core() {
@@ -23,12 +23,12 @@ function core() {
     prepare()
     registerCommand()
   } catch (e) {
-    log.error(e.message)
+    log.error('报错了--->', e.message)
   }
 
 }
 
-async function prepare () {
+function prepare () {
   // 检查包版本
   checkPkgVersion()
   // 检查node版本
@@ -42,7 +42,7 @@ async function prepare () {
   // 检查入参
   checkInputArgs()
   // 检查版本是否为最新版本
-  await checkGlobalUpdate()
+  // await checkGlobalUpdate()
 
 }
 
@@ -59,7 +59,7 @@ function registerCommand () {
   program
     .command('init [projectName]')
     .option('-f, --force', '是否强制初始化项目')
-    .action(init);
+    .action(exec);
 
 
   // 开启 debug 模式
@@ -146,7 +146,8 @@ function checkEnv () {
   const config = dotenv.config({
     path: path.resolve(__dirname, '.env')
   })
-  log.verbose('环境变量', config)
+  process.env.CLI_HOME_PATH = userHome + '/' + config.parsed.ENV;
+  console.log('环境变量', process.env.CLI_HOME_PATH )
 }
 
 // 检查是否为最新版本

@@ -38,5 +38,6 @@ async function getNpmVersions (npmName, registry) {
 
 
 module.exports = {
-  getNpmVersions
+  getNpmVersions,
+  getDefaultRegistry
 }

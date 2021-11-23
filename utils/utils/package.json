@@ -5,7 +5,7 @@
   "author": "sunchang <sunchang612@gmail.com>",
   "homepage": "",
   "license": "ISC",
-  "main": "index.js",
+  "main": "lib/index.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"

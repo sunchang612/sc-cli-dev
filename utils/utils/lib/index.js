@@ -1,7 +1,11 @@
 'use strict';
 
-module.exports = utils;
-
-function utils() {
-    // TODO
+function isObject (o) {
+  return !Object.prototype.toString.call(o) === '[object Object]'
 }
+
+// 获取最新的版本号
+
+module.exports = {
+  isObject
+};
