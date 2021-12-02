@@ -11,7 +11,7 @@ const CACHE_DIR = 'dependencies';
 
 async function exec() {
   let targetPath = process.env.CLI_TARGET_PATH
-  console.log('CLI_TARGET_PATH --->', process.env.CLI_TARGET_PATH)
+  // console.log('CLI_TARGET_PATH --->', process.env.CLI_TARGET_PATH)
 
   const homePath = process.env.CLI_HOME_PATH
   let storeDir = ''
@@ -49,7 +49,14 @@ async function exec() {
       packageVersion,
     });
     const rootFile = pkg.getRootFilePath()
-    require(rootFile).apply(null, arguments)
+    if (rootFile) {
+      try {
+        // 在当前进程中调用
+        require(rootFile).call(null, Array.from(arguments))
+      } catch (e) {
+        log.error(e.message)
+      }
+    }
   }
 }
 module.exports = exec;

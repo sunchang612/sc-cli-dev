@@ -3,7 +3,6 @@
 module.exports = core;
 let args
 
-const semver = require('semver')
 const colors = require('colors/safe')
 const rootCheck = require('root-check')
 const userHome = require('user-home')
@@ -14,7 +13,6 @@ const pkg = require('../package.json')
 const log = require('@sc-cli-dev/log')
 const init = require('@sc-cli-dev/init')
 const exec = require('@sc-cli-dev/exec')
-const { LOWEST_VERSION } = require('./const')
 const { program } = commander
 
 function core() {
@@ -32,7 +30,7 @@ function prepare () {
   // 检查包版本
   checkPkgVersion()
   // 检查node版本
-  checkNodeVersion()
+  // checkNodeVersion()
   // 检查是否为 Root 权限，进行降权操作
   checkRoot()
   // 检查 home 文件是否存在
@@ -99,14 +97,14 @@ function checkPkgVersion () {
 }
 
 // 检查 node 版本号
-function checkNodeVersion () {
-  // 当前的版本号
-  console.log(process.version)
-  const version = process.version
-  if (!semver.gte(version, LOWEST_VERSION)) {
-    throw new Error(colors.red(`需要安装 ${LOWEST_VERSION} 以上的node版本`))
-  }
-}
+// function checkNodeVersion () {
+//   // 当前的版本号
+//   console.log(process.version)
+//   const version = process.version
+//   if (!semver.gte(version, LOWEST_VERSION)) {
+//     throw new Error(colors.red(`需要安装 ${LOWEST_VERSION} 以上的node版本`))
+//   }
+// }
 
 // 检查 root 账号
 function checkRoot () {

@@ -28,5 +28,8 @@
   },
   "bugs": {
     "url": "https://github.com/sunchang612/sc-cli-dev/issues"
+  },
+  "dependencies": {
+    "@sc-cli-dev/command": "file:../../models/command"
   }
 }
