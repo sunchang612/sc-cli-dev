@@ -14,7 +14,8 @@ class Package {
     if (!options) {
       throw new Error('请传入参数')
     }
-    if (isObject(options)) {
+    console.log('options ------>', options)
+    if (!isObject(options)) {
       throw new Error('参数必须是object类型')
     }
     // package 路径

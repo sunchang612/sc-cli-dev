@@ -1,7 +1,7 @@
 {
-  "name": "@sc-cli-dev/exec",
+  "name": "@sc-cli-dev/command",
   "version": "1.0.0",
-  "description": "> TODO: description",
+  "description": "command",
   "author": "sunchang <sunchang612@gmail.com>",
   "homepage": "https://github.com/sunchang612/sc-cli-dev#readme",
   "license": "ISC",
@@ -27,8 +27,8 @@
     "url": "https://github.com/sunchang612/sc-cli-dev/issues"
   },
   "dependencies": {
-    "@sc-cli-dev/package": "file:../../models/package",
-    "@sc-cli-dev/log": "file:../../utils/log",
+    "colors": "^1.4.0",
+    "semver": "^7.3.5",
     "@sc-cli-dev/utils": "file:../../utils/utils"
   }
 }

@@ -12,7 +12,19 @@ class InitCommand extends Command {
   }
 
   exec() {
+    try {
+      this.prepare()
+    } catch (e) {
+      console.error(e)
+    }
+    // 准备阶段
+    // 下载模板
+    // 安装模板
     console.log('exec')
+  }
+
+  prepare () {
+    throw new Error('出错了')
   }
 }
 function init(argv) {
