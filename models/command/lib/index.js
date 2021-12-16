@@ -30,12 +30,13 @@ class Command {
         console.error(e.message)
       })
     })
+    this.runner = runner
   }
 
   initArgs () {
-    this._cmd = this._argv[this._argv.length - 1]
+    this._cmd = this._argv[this._argv.length - 2]
     this._argv = this._argv.slice(0, this._argv.length - 1)
-    console.log('init ---->', this._cmd, this._argv)
+    console.log('init ---->', this._argv, this._cmd)
   }
   checkNodeVersion () {
     // 当前的版本号
