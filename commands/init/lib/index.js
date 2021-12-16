@@ -5,7 +5,11 @@ const fs = require('fs')
 const Command = require('@sc-cli-dev/command')
 const inquirer = require('inquirer')
 const fes = require('fs-extra')
+const log = require('@sc-cli-dev/log')
+const semver = require('semver')
 
+const TYPE_PROJECT = 'type_project'
+const TYPE_COMPONENT = 'type_component'
 class InitCommand extends Command {
   init() {
     this.projectName = this._argv[0] || ''
@@ -57,10 +61,85 @@ class InitCommand extends Command {
         console.log(confirmDelete)
       }
     }
-    // 3. 选择创建项目或组件
-    // 4. 获取项目的基本信息
+    return this.getProjectInfo()
     // throw new Error('出错了')
   }
+
+  async getProjectInfo () {
+    function isValidName (v) {
+      return /^(@[a-zA-Z0-9-_]+\/)?[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(v);
+    }
+    // 1. 选择创建项目或组件
+    const { type } = await inquirer.prompt({
+      type: 'list',
+      name: 'type',
+      message: '请选择初始化类型',
+      default: TYPE_PROJECT,
+      choices: [
+        {
+          name: '项目',
+          value: TYPE_PROJECT
+        },
+        {
+          name: '组件',
+          value: TYPE_COMPONENT
+        }
+      ]
+    })
+    console.error()
+    if (type === TYPE_PROJECT) {
+      const result = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'projectName',
+          message: '请输入项目名称',
+          default: '',
+          validate: function (v) {
+            const done = this.async()
+            setTimeout(() => {
+              if (!isValidName(v)) {
+                done('请输入合法的项目名')
+                return
+              }
+              done(null, true)
+            }, 0)
+          },
+          filter: function (v) {
+            return v
+          }
+        },
+        {
+          type: 'input',
+          name: 'projectVersion',
+          message: '请输入版本号',
+          default: '1.0.0',
+          validate: function (v) {
+            const done = this.async()
+            setTimeout(() => {
+              if (!(!!semver.valid(v))) {
+                done('请输入合法的项目名')
+                return
+              }
+              done(null, true)
+            }, 0)
+          },
+          filter: function(v) {
+            if (!!semver.valid(v)) {
+              return semver.valid(v);
+            } else {
+              return v;
+            }
+          },
+        }
+      ])
+      console.log('result ---->', result)
+    } else if (type === TYPE_COMPONENT) {
+
+    }
+    // 4. 获取项目的基本信息
+  }
+
+
 
   isCwdEmpty() {
     // 获取文件目录
