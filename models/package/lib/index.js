@@ -22,10 +22,7 @@ class Package {
     this.targetPath = options.targetPath
     // 缓存 package 的路径
     this.storeDir = options.storeDir
-
     this.packageName = options.packageName
-
-    console.log('package name ---->', this.packageName)
     this.packageVersion = options.packageVersion
     console.log('packages --', options)
     // 缓存路径的前缀  / 替换成_
@@ -64,7 +61,7 @@ class Package {
         { name: this.packageName, version },
       ],
       root: this.targetPath,
-      registry: 'https://registry.npmjs.org',
+      registry: 'https://registry.npm.taobao.org/',
       storeDir: this.storeDir,
     });
   }
