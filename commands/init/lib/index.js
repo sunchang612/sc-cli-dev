@@ -5,12 +5,15 @@ const fs = require('fs')
 const path = require('path')
 const Command = require('@sc-cli-dev/command')
 const inquirer = require('inquirer')
-const fes = require('fs-extra')
+const fse = require('fs-extra')
 const log = require('@sc-cli-dev/log')
 const semver = require('semver')
 const userHome = require('user-home')
 const Package = require('@sc-cli-dev/package')
 const { spinnerStart } = require('@sc-cli-dev/utils')
+
+const TEMPLATE_TYPE_NORMAL = 'normal';
+const TEMPLATE_TYPE_CUSTOM = 'custom';
 
 const TYPE_PROJECT = 'type_project'
 const TYPE_COMPONENT = 'type_component'
@@ -19,7 +22,8 @@ const TEMPLATE_OPTION = [
   {
     value: 'sc-vue-template',
     name: 'sc-vue-template',
-    version: '0.1.0'
+    version: '0.1.0',
+    type: 'normal'
   }
 ]
 class InitCommand extends Command {
@@ -27,6 +31,7 @@ class InitCommand extends Command {
     this.projectName = this._argv[0] || ''
     this.force = !!this._cmd.force
     this.template = TEMPLATE_OPTION
+    this.templateNpm = null
     console.log('重置的 init', this.projectName, this.force)
   }
 
@@ -41,6 +46,7 @@ class InitCommand extends Command {
         await this.downloadTemplate()
       }
       // 安装模板
+      await this.installTemplate()
     } catch (e) {
       console.error(e)
     }
@@ -66,15 +72,80 @@ class InitCommand extends Command {
     if (!await templateNpm.exists()) {
       // 不存在去下载
       const spinner = spinnerStart('正在下载模板')
-      await templateNpm.install()
-      spinner.stop(true)
-      log.success('下载模板成功')
+      try {
+        await templateNpm.install()
+      } catch (e) {
+        throw e
+      } finally {
+        spinner.stop(true)
+        // 判断模板是否存在
+        if (await templateNpm.exists()) {
+          log.success('下载模板成功')
+          // 保存模板信息，用于后续拷贝模板用
+          this.templateNpm = templateNpm
+        }
+      }
+
     } else {
       const spinner = spinnerStart('正在更新模板')
-      await templateNpm.update()
-      spinner.stop(true)
-      log.success('更新模板成功')
+      try {
+        await templateNpm.update()
+      } catch (e) {
+        throw e
+      } finally {
+        spinner.stop(true)
+        if (await templateNpm.exists()) {
+          log.success('更新模板成功')
+          this.templateNpm = templateNpm
+        }
+      }
     }
+  }
+
+  // 下载模板
+  installTemplate () {
+    console.log(this.templateInfo)
+    if (this.templateInfo) {
+      // 判断模板类型是否存在
+      if (!this.templateInfo.type) {
+        this.templateInfo.type = TEMPLATE_TYPE_NORMAL
+      }
+
+      if (this.templateInfo.type === TEMPLATE_TYPE_NORMAL) {
+        this.installNormalTemplate()
+      } else if (this.templateInfo.type === TEMPLATE_TYPE_CUSTOM) {
+        this.installCustomTemplate()
+      } else {
+        throw new Error('无法识别项目模板类型！');
+      }
+    } else {
+      throw new Error('模板不存在！');
+    }
+  }
+
+  // 安装标准的模板
+  installNormalTemplate() {
+    let spinner = spinnerStart('正在安装模板...');
+    try {
+      // 拿到缓存的路径
+      const templatePath = this.templateNpm.cacheFilePath
+      // 拿到当前目录
+      const targetPath = process.cwd()
+      // ensureDirSync 能确保当前目录是存在的，如果没有会自动去创建
+      fse.ensureDirSync(templatePath)
+      fse.ensureDirSync(targetPath)
+      fse.copySync(templatePath, targetPath)
+    } catch (e) {
+      throw e
+    } finally {
+      spinner.stop(true)
+      log.success('模板安装成功')
+    }
+  }
+
+  // 安装自定义模板
+  installCustomTemplate () {
+
   }
 
   async prepare () {
@@ -107,7 +178,7 @@ class InitCommand extends Command {
         })
         // 删除目录
         if(confirmDelete) {
-          fes.emptyDirSync(localPath)
+          fse.emptyDirSync(localPath)
         }
         console.log(confirmDelete)
       }

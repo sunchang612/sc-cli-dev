@@ -8,7 +8,6 @@ function getNpmInfo (npmName, registry) {
   if (!npmName) return null
   const registryUrl = registry || getDefaultRegistry()
   const npmInfoUrl = urlJoin(registryUrl, npmName)
-  console.log('url --->', npmInfoUrl)
   return axios.get(npmInfoUrl).then(response => {
     if (response.status === 200) {
       return response.data
