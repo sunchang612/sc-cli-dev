@@ -33,6 +33,7 @@
     "@sc-cli-dev/command": "file:../../models/command",
     "@sc-cli-dev/log": "file:../../utils/log",
     "@sc-cli-dev/package": "file:../../models/package",
+    "@sc-cli-dev/utils": "file:../../utils/utils",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.2.0",
     "semver": "^7.3.5",

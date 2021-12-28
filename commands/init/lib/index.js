@@ -10,6 +10,7 @@ const log = require('@sc-cli-dev/log')
 const semver = require('semver')
 const userHome = require('user-home')
 const Package = require('@sc-cli-dev/package')
+const { spinnerStart } = require('@sc-cli-dev/utils')
 
 const TYPE_PROJECT = 'type_project'
 const TYPE_COMPONENT = 'type_component'
@@ -64,12 +65,16 @@ class InitCommand extends Command {
     // 判断当前 npm 包是否存在
     if (!await templateNpm.exists()) {
       // 不存在去下载
+      const spinner = spinnerStart('正在下载模板')
       await templateNpm.install()
+      spinner.stop(true)
+      log.success('下载模板成功')
     } else {
+      const spinner = spinnerStart('正在更新模板')
       await templateNpm.update()
+      spinner.stop(true)
+      log.success('更新模板成功')
     }
-
-    console.log('targetPath ----------->', templateNpm)
   }
 
   async prepare () {
@@ -79,9 +84,7 @@ class InitCommand extends Command {
     const isCwdEmpty = this.isCwdEmpty(localPath)
     // 拿到当前目录的另一种方式
     // console.log(path.resolve('.'))
-    console.log('当前文件是否为空', localPath)
     if (!isCwdEmpty) {
-      console.log('force ------>', this.force)
       let ifContinue = false
       if(!this.force) {
         ifContinue = await inquirer.prompt({
@@ -196,7 +199,6 @@ class InitCommand extends Command {
   }
 
   isCwdEmpty(localPath) {
-    console.log('localPath --->', localPath)
     // 拿到文件下的内容
     let fileList = fs.readdirSync(localPath)
     // 过滤掉一些文件
