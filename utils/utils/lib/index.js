@@ -33,7 +33,9 @@ function execAsync(command, args, options) {
     p.on('error', e => {
       reject(e);
     });
+    // 进程退出时，说明执行成功
     p.on('exit', c => {
+      console.log('执行完成---------》', c)
       resolve(c);
     });
   });

@@ -10,7 +10,7 @@ const log = require('@sc-cli-dev/log')
 const semver = require('semver')
 const userHome = require('user-home')
 const Package = require('@sc-cli-dev/package')
-const { spinnerStart } = require('@sc-cli-dev/utils')
+const { spinnerStart, execAsync } = require('@sc-cli-dev/utils')
 
 const TEMPLATE_TYPE_NORMAL = 'normal';
 const TEMPLATE_TYPE_CUSTOM = 'custom';
@@ -22,8 +22,10 @@ const TEMPLATE_OPTION = [
   {
     value: 'sc-vue-template',
     name: 'sc-vue-template',
-    version: '0.1.0',
-    type: 'normal'
+    version: '1.0.2',
+    type: 'normal',
+    install: 'npm install',
+    start: 'npm run serve'
   }
 ]
 class InitCommand extends Command {
@@ -39,14 +41,14 @@ class InitCommand extends Command {
     try {
       // 准备阶段
       const projectInfo = await this.prepare()
-      // 下载模板
       if (projectInfo) {
         this.projectInfo = projectInfo
-
+        // 下载模板
         await this.downloadTemplate()
+
+        // 安装模板
+        await this.installTemplate()
       }
-      // 安装模板
-      await this.installTemplate()
     } catch (e) {
       console.error(e)
     }
@@ -103,7 +105,7 @@ class InitCommand extends Command {
   }
 
   // 下载模板
-  installTemplate () {
+  async installTemplate () {
     console.log(this.templateInfo)
     if (this.templateInfo) {
       // 判断模板类型是否存在
@@ -112,7 +114,7 @@ class InitCommand extends Command {
       }
 
       if (this.templateInfo.type === TEMPLATE_TYPE_NORMAL) {
-        this.installNormalTemplate()
+        await this.installNormalTemplate()
       } else if (this.templateInfo.type === TEMPLATE_TYPE_CUSTOM) {
         this.installCustomTemplate()
       } else {
@@ -124,7 +126,7 @@ class InitCommand extends Command {
   }
 
   // 安装标准的模板
-  installNormalTemplate() {
+  async installNormalTemplate() {
     let spinner = spinnerStart('正在安装模板...');
     try {
       // 拿到缓存的路径
@@ -140,6 +142,33 @@ class InitCommand extends Command {
     } finally {
       spinner.stop(true)
       log.success('模板安装成功')
+    }
+    // 依赖安装
+    const { install, start } = this.templateInfo
+    let installRes = null
+    if (install) {
+      // 取出命令，转换成 spawn 需要的格式（后面是数组）
+      const installCmd = install.split(' ')
+      const cmd = installCmd[0]
+      const args = installCmd.slice(1)
+      installRes = await execAsync(cmd, args, {
+        stdio: 'inherit', // 表示所有 log 都打印在主进程
+        cwd: process.cwd()
+      })
+      console.log('installRes --->', installRes)
+      if (installRes !== 0) {
+        throw new Error('依赖安装失败！')
+      }
+      // 执行启动命令
+      if (start) {
+        const startCmd = start.split(' ')
+        const cmd = startCmd[0]
+        const args = startCmd.slice(1)
+        await execAsync(cmd, args, {
+          stdio: 'inherit', // 表示所有 log 都打印在主进程
+          cwd: process.cwd()
+        })
+      }
     }
   }
 
@@ -215,7 +244,7 @@ class InitCommand extends Command {
           type: 'input',
           name: 'projectName',
           message: '请输入项目名称',
-          default: '',
+          default: this.projectName,
           validate: function (v) {
             const done = this.async()
             setTimeout(() => {
@@ -234,7 +263,7 @@ class InitCommand extends Command {
           type: 'input',
           name: 'projectVersion',
           message: '请输入版本号',
-          default: '1.0.0',
+          default: '1.0.2',
           validate: function (v) {
             const done = this.async()
             setTimeout(() => {

@@ -61,7 +61,7 @@ class Package {
         { name: this.packageName, version },
       ],
       root: this.targetPath,
-      registry: 'https://registry.npm.taobao.org/',
+      registry: 'https://registry.npmjs.org/',
       storeDir: this.storeDir,
     });
   }
