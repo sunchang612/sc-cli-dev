@@ -8,6 +8,8 @@ const inquirer = require('inquirer')
 const fse = require('fs-extra')
 const log = require('@sc-cli-dev/log')
 const semver = require('semver')
+const glob = require('glob')
+const ejs = require('ejs')
 const userHome = require('user-home')
 const Package = require('@sc-cli-dev/package')
 const { spinnerStart, execAsync } = require('@sc-cli-dev/utils')
@@ -62,6 +64,7 @@ class InitCommand extends Command {
     // 缓存的项目模板
     const targetPath = path.resolve(userHome, '.sc-cli-dev', 'template')
     const storeDir = path.resolve(userHome, '.sc-cli-dev', 'template', 'node_modules')
+
     const { name, version } = templateInfo
     this.templateInfo = templateInfo
     const templateNpm = new Package({
@@ -130,7 +133,7 @@ class InitCommand extends Command {
     let spinner = spinnerStart('正在安装模板...');
     try {
       // 拿到缓存的路径
-      const templatePath = this.templateNpm.cacheFilePath
+      const templatePath = path.resolve(this.templateNpm.cacheFilePath, 'template')
       // 拿到当前目录
       const targetPath = process.cwd()
       // ensureDirSync 能确保当前目录是存在的，如果没有会自动去创建
@@ -143,6 +146,11 @@ class InitCommand extends Command {
       spinner.stop(true)
       log.success('模板安装成功')
     }
+    log.info('开始安装依赖')
+    // 忽略文件
+    const ignore = ['node_modules/**', 'public/**']
+    await this.ejsRender(ignore)
+
     // 依赖安装
     const { install, start } = this.templateInfo
     let installRes = null
@@ -170,6 +178,42 @@ class InitCommand extends Command {
         })
       }
     }
+  }
+
+  async ejsRender (ignore) {
+    const dir = process.cwd()
+    const projectInfo = this.projectInfo;
+    console.log('ejs ---------->', projectInfo)
+    return new Promise((resolve, reject) => {
+      // 拿到文件目录
+      glob('**', {
+          cwd: dir,
+          ignore,
+          nodir: true // 不包含文件加
+      }, function (err, files) {
+        if (err) {
+          reject(err)
+        }
+        Promise.all(files.map(file => {
+          const filePath = path.join(dir, file)
+          return new Promise((resolve1, reject1) => {
+            ejs.renderFile(filePath, projectInfo, {}, (err, result) => {
+              if (err) {
+                reject1(err)
+              } else {
+                // 因为 ejs 拿到的结果是字符串，所以需要重新写入文件
+                fse.writeFileSync(filePath, result);
+                resolve1(result)
+              }
+            })
+          })
+        })).then(() => {
+          resolve()
+        }).catch((err) => {
+          reject(err)
+        })
+      })
+    })
   }
 
   // 安装自定义模板
@@ -220,6 +264,7 @@ class InitCommand extends Command {
     function isValidName (v) {
       return /^(@[a-zA-Z0-9-_]+\/)?[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(v);
     }
+    let projectInfo = {}
     // 1. 选择创建项目或组件
     const { type } = await inquirer.prompt({
       type: 'list',
@@ -239,7 +284,7 @@ class InitCommand extends Command {
     })
     console.error()
     if (type === TYPE_PROJECT) {
-      const result = await inquirer.prompt([
+      projectInfo = await inquirer.prompt([
         {
           type: 'input',
           name: 'projectName',
@@ -289,13 +334,23 @@ class InitCommand extends Command {
           choices: TEMPLATE_OPTION
         }
       ])
-      console.log('result ---->', result)
-      return result
     } else if (type === TYPE_COMPONENT) {
 
     }
 
     // 4. 获取项目的基本信息
+    // 生成 projectName
+    if (projectInfo.projectName) {
+      // kebab-case 驼峰转为 -
+      projectInfo.name = require('kebab-case')(projectInfo.projectName).replace(/^-/, '')
+    }
+
+    if (projectInfo.projectVersion) {
+      projectInfo.version = projectInfo.projectVersion;
+    }
+
+    console.log('result ---->', projectInfo)
+    return projectInfo
   }
 
   isCwdEmpty(localPath) {
