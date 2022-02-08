@@ -133,7 +133,7 @@ function checkArgs () {
   if (args.debug) {
     process.env.LOG_LEVEL = 'verbose'
   } else {
-     process.env.LOG_LEVEL = 'info'
+    process.env.LOG_LEVEL = 'info'
   }
 
 }

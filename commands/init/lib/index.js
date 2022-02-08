@@ -282,7 +282,6 @@ class InitCommand extends Command {
         }
       ]
     })
-    console.error()
     if (type === TYPE_PROJECT) {
       projectInfo = await inquirer.prompt([
         {

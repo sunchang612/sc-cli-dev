@@ -4,3 +4,4 @@ packages/*/node_modules
 lerna-debug.log
 .idea
 .DS_Store
+packages/*/.DS_Store
